@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  mobile_backend:
+    image: ghcr.io/averagefun/smarthome/mobile-backend:primary
+    build: "MobileBackend"
+    platform: "linux/amd64"
+    ports:
+      - "8080:8080"
+
+  postgres:
+    image: postgres:16-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=smarthome
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "54333:5432"
+
+volumes:
+  postgres_data:
