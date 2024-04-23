@@ -9,6 +9,7 @@ import io.ktor.server.auth.jwt.jwt
 import java.util.Date
 
 const val USERNAME = "username"
+const val HUB_ID = "hubId"
 lateinit var jwtSecret: String
 
 fun Application.configureSecurity() {
@@ -23,17 +24,19 @@ fun Application.configureSecurity() {
             )
             validate { credential ->
                 val claims = credential.payload.claims
-                UserPrincipal(claims[USERNAME]!!.asString())
+                UserPrincipal(claims[USERNAME]!!.asString(), claims[HUB_ID]!!.asInt())
             }
         }
     }
 }
 
 class UserPrincipal(
-    val username: String
+    val username: String,
+    val hubId: Int
 ) : Principal
 
-fun createToken(username: String): String = JWT.create()
+fun createToken(username: String, hubId: Int): String = JWT.create()
     .withClaim(USERNAME, username)
+    .withClaim(HUB_ID, hubId)
     .withExpiresAt(Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
     .sign(Algorithm.HMAC256(jwtSecret))

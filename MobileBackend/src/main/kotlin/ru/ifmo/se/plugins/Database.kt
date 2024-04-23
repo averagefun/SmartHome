@@ -1,5 +1,6 @@
-package ru.ifmo.se.dao
+package ru.ifmo.se.plugins
 
+import io.ktor.server.application.Application
 import io.ktor.server.config.ApplicationConfig
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
@@ -7,6 +8,10 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import ru.ifmo.se.model.Users
+
+fun Application.configureDatabase() {
+    DatabaseSingleton.init(environment.config)
+}
 
 object DatabaseSingleton {
     fun init(config: ApplicationConfig) {

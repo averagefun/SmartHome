@@ -5,9 +5,9 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
-import ru.ifmo.se.dao.DatabaseSingleton.dbQuery
 import ru.ifmo.se.model.User
 import ru.ifmo.se.model.Users
+import ru.ifmo.se.plugins.DatabaseSingleton.dbQuery
 
 class UserDao : DAOFacade<User> {
     private fun toUser(row: ResultRow) = User(

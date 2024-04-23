@@ -46,6 +46,10 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
     implementation("org.postgresql:postgresql:$postgresql_version")
 
+    // redis
+    implementation("io.lettuce:lettuce-core:6.2.6.RELEASE")
+    implementation("com.redis:lettucemod:3.6.3")
+
     // tests
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }

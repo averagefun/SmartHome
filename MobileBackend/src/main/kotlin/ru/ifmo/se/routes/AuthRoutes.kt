@@ -24,7 +24,7 @@ fun Application.authRoutes() {
                     call.respond(HttpStatusCode.BadRequest, ErrorResponse("User '${auth.username}' already exists"))
                 } else {
                     userDao.create(auth.username, BCrypt.hashpw(auth.password, BCrypt.gensalt()))
-                        ?.let { createToken(auth.username) }
+                        ?.let { user -> createToken(user.username, user.id) }
                         ?.let { token -> call.respond(AuthResponse(token)) }
                         ?: call.respond(HttpStatusCode.InternalServerError, ErrorResponse("Failed to register user"))
                 }
@@ -37,7 +37,7 @@ fun Application.authRoutes() {
                         ErrorResponse("User '${auth.username}' not exists")
                     )
                 if (BCrypt.checkpw(auth.password, user.password)) {
-                    createToken(auth.username).let { token -> call.respond(AuthResponse(token)) }
+                    createToken(user.username, user.id).let { token -> call.respond(AuthResponse(token)) }
                 }
                 return@post call.respond(HttpStatusCode.BadRequest, ErrorResponse("Wrong password"))
             }
