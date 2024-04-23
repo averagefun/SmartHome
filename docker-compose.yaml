@@ -31,7 +31,17 @@ services:
     ports:
       - "6379:6379"
 
+  clickhouse-server:
+    image: yandex/clickhouse-server
+    container_name: clickhouse-server
+    ports:
+      - '8123:8123'
+      - '9000:9000'
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+
 volumes:
   postgres_data:
   redis_data:
   redis_config:
+  clickhouse_data:
