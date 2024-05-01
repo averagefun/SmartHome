@@ -11,6 +11,7 @@ class RoomResponse(
 )
 
 class RoomStateResponse(
+    val stateId: Long,
     val sensors: List<SensorResponse>,
     val switches: List<SwitchResponse>,
     val rangeSwitches: List<RangeSwitchResponse>

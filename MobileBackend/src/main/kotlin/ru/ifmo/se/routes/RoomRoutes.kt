@@ -38,7 +38,7 @@ fun Application.roomRoutes() {
                     SwitchResponse(1, "WiFi", "power", true),
                     SwitchResponse(2, "Входная дверь", "lock", false),
                 )
-                call.respond(RoomStateResponse(emptyList(), switches, emptyList()))
+                call.respond(RoomStateResponse(1L, emptyList(), switches, emptyList()))
             }
             get("/api/rooms/{id}/state") {
                 val principal = call.principal<UserPrincipal>()!!
@@ -60,7 +60,7 @@ fun Application.roomRoutes() {
                     RangeSwitchResponse(2, "Свет над аквариумом", "light", true, 50.0),
                 )
 
-                call.respond(RoomStateResponse(sensors, switches, rangeSwitches))
+                call.respond(RoomStateResponse(1L, sensors, switches, rangeSwitches))
             }
         }
     }
