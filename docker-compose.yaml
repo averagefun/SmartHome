@@ -11,6 +11,15 @@ services:
       - postgres
       - redis
 
+  emulation_backend:
+    image: ghcr.io/averagefun/smarthome/emulation-backend:primary
+    build: "Emulation"
+    platform: "linux/amd64"
+    ports:
+      - "8090:8090"
+    depends_on:
+      - redis
+
   postgres:
     image: postgres:16-alpine
     volumes:
