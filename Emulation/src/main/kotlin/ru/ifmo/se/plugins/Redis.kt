@@ -27,15 +27,11 @@ object RedisSingleton {
 
     fun publish(channel: String, message: String) = redisCommands.publish(channel, message)
 
-    val listener = object : RedisPubSubListener<String, String> {
+    private val listener = object : RedisPubSubListener<String, String> {
         override fun message(channel: String, message: String) {
-            println("Received message: $message from channel: $channel")
-            HubService.current.getMessage(channel, message)
         }
-
-        override fun message(pattern: String?, channel: String?, message: String?) {
-            println("Something happened")
-        }
+        override fun message(pattern: String?, channel: String?, message: String?): Unit =
+            channel?.let { HubService.current.getMessage(it, message ?: "") } ?: Unit
 
         override fun subscribed(channel: String?, count: Long) {
         }
