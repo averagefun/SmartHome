@@ -5,7 +5,7 @@ import ru.ifmo.se.dto.UpdateDto
 
 abstract class AbstractHub(
     open val hubId: Long,
-    open var state: StateDto,
+    open val state: StateDto,
 ) {
     abstract fun setStateWithUpdate(updateDto: UpdateDto)
 

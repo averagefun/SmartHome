@@ -6,7 +6,7 @@ data class StateResponseDto(
 )
 
 data class StateDto(
-    val stateId: Long,
+    var stateId: Long,
     val rooms: List<RoomDto>
 )
 

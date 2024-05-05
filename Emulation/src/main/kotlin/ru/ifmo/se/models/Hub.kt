@@ -13,15 +13,13 @@ class Hub(
     override var state: StateDto = stateExample,
 ) : AbstractHub(hubId, state) {
 
-    constructor(id: Long) : this(id, stateExample)
-
     override fun setStateWithUpdate(updateDto: UpdateDto) {
         TODO("Not yet implemented")
     }
 }
 
 val stateExample = StateDto(
-    stateId = Random.nextLong(1, 1000),
+    stateId = 0,
     rooms = listOf(
         RoomDto(
             id = Random.nextLong(1, 1000),

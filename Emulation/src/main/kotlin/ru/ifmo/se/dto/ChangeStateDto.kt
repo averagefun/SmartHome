@@ -13,14 +13,14 @@ data class UpdateDto(
 
 data class SwitchDto(
     val id: Long,
-    val enabled: Boolean,
+    var enabled: Boolean,
 )
 data class RangeSwitchDto(
     val id: Long,
-    val enabled: Boolean,
-    val value: Double,
+    var enabled: Boolean,
+    var value: Double,
 )
 data class SensorDto(
     val id: Long,
-    val value: Double,
+    var value: Double,
 )

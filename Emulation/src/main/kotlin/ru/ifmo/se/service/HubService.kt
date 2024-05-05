@@ -43,16 +43,29 @@ class HubService {
         when(channel){
             "state.request" -> {
                 val body = jacksonObjectMapper().readValue(payload, StateRequestDto::class.java)
-                getState(body.hubId)?.copy(
-                    state = stateExample,
-                )?.let { publisher.publish("state.response", jacksonObjectMapper().writeValueAsString(it)) }            }
+                getState(body.hubId)?.let { publisher.publish("state.response", jacksonObjectMapper().writeValueAsString(it)) }            }
             "state.update" -> {
                 val body = jacksonObjectMapper().readValue(payload, ChangeStateDto::class.java)
-                getState(body.hubId)
-                    //?.takeIf { "update only if more then hub.state.id" != null }
-                    ?.copy( // fixme
-                    state = stateExample,
-                )?.let { publisher.publish("state.response", jacksonObjectMapper().writeValueAsString(it)) }
+                if (hubs.containsKey(body.hubId) && body.update.stateId > hubs[body.hubId]!!.state.stateId){
+                    hubs[body.hubId]!!.state.stateId = body.update.stateId
+
+                    body.update.rangeSwitch?.let { rangeSwitch ->
+                        hubs[body.hubId]!!.state.rooms.forEach {
+                            it.rangeSwitches.find { it.id == rangeSwitch.id }?.let {
+                                it.value = rangeSwitch.value
+                                it.enabled = rangeSwitch.enabled
+                            }
+                        }
+                    }
+                    body.update.switch?.let { switch ->
+                        hubs[body.hubId]!!.state.rooms.forEach {
+                            it.switches.find { it.id == switch.id }?.let {
+                                it.enabled = switch.enabled
+                            }
+                        }
+                    }
+                }
+                getState(body.hubId)?.let { publisher.publish("state.response", jacksonObjectMapper().writeValueAsString(it)) }
             }
         }
     }
