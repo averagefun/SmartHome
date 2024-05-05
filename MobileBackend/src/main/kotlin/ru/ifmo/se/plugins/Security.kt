@@ -24,7 +24,7 @@ fun Application.configureSecurity() {
             )
             validate { credential ->
                 val claims = credential.payload.claims
-                UserPrincipal(claims[USERNAME]!!.asString(), claims[HUB_ID]!!.asInt())
+                UserPrincipal(claims[USERNAME]!!.asString(), claims[HUB_ID]!!.asLong())
             }
         }
     }
@@ -32,7 +32,7 @@ fun Application.configureSecurity() {
 
 class UserPrincipal(
     val username: String,
-    val hubId: Int
+    val hubId: Long
 ) : Principal
 
 fun createToken(username: String, hubId: Int): String = JWT.create()

@@ -9,13 +9,15 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import org.mindrot.jbcrypt.BCrypt
-import ru.ifmo.se.dao.userDao
+import ru.ifmo.se.dao.UserDao
 import ru.ifmo.se.dto.AuthRequest
 import ru.ifmo.se.dto.AuthResponse
 import ru.ifmo.se.dto.ErrorResponse
 import ru.ifmo.se.plugins.createToken
 
 fun Application.authRoutes() {
+    val userDao = UserDao()
+
     routing {
         route("/api/auth") {
             post("/register") {

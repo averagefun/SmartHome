@@ -5,6 +5,7 @@ import io.ktor.server.config.ApplicationConfig
 import io.lettuce.core.RedisClient
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
+import java.time.Duration
 
 fun Application.configureRedis() {
     RedisSingleton.init(environment.config)
@@ -22,5 +23,14 @@ object RedisSingleton {
         redisCommands = redisClient.connect().sync()
     }
 
-    fun publish(channel: String, message: String) = redisCommands.publish(channel, message)
+    inline fun <reified T> get(key: String): T? =
+        if (redisCommands.exists(key) > 0) objectMapper.readValue(redisCommands.get(key), T::class.java) else null
+
+    fun setWithExpiration(key: String, content: Any, invalidateAt: Duration) {
+        redisCommands.psetex(key, invalidateAt.toMillis(), objectMapper.writeValueAsString(content))
+    }
+
+    fun publish(channel: String, message: Any) {
+        redisCommands.publish(channel, objectMapper.writeValueAsString(message))
+    }
 }

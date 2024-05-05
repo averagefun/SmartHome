@@ -40,5 +40,3 @@ class UserDao : DAOFacade<User> {
         insertStatement.resultedValues?.singleOrNull()?.let(::toUser)
     }
 }
-
-val userDao: UserDao = UserDao()

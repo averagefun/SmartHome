@@ -6,61 +6,91 @@ import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.principal
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
+import io.ktor.server.routing.patch
 import io.ktor.server.routing.routing
-import ru.ifmo.se.dto.RangeSwitchResponse
-import ru.ifmo.se.dto.RoomResponse
-import ru.ifmo.se.dto.RoomStateResponse
-import ru.ifmo.se.dto.RoomsResponse
-import ru.ifmo.se.dto.SensorResponse
-import ru.ifmo.se.dto.SwitchResponse
-import ru.ifmo.se.plugins.RedisSingleton
+import ru.ifmo.se.dao.RedisDao
+import ru.ifmo.se.dto.ExpandRoomDto
+import ru.ifmo.se.dto.MessageResponse
+import ru.ifmo.se.dto.RangeSwitchDto
+import ru.ifmo.se.dto.RoomDto
+import ru.ifmo.se.dto.RoomsDto
+import ru.ifmo.se.dto.SensorDto
+import ru.ifmo.se.dto.SwitchDto
 import ru.ifmo.se.plugins.UserPrincipal
 
 fun Application.roomRoutes() {
+    val redisDao = RedisDao()
+    var stateId = 1L
+
     routing {
         authenticate {
             get("/api/rooms") {
                 val principal = call.principal<UserPrincipal>()!!
-                RedisSingleton.publish("state.request", principal.hubId.toString())
+
+                // val state: StateDto? = redisDao.getState(principal.hubId)
 
                 val rooms = listOf(
-                    RoomResponse(1, "Маленькая гостинная", "living"),
-                    RoomResponse(2, "Большая гостинная", "living"),
-                    RoomResponse(3, "Кухня", "kitchen")
+                    RoomDto(1, "Маленькая гостинная", "living"),
+                    RoomDto(2, "Большая гостинная", "living"),
+                    RoomDto(3, "Кухня", "kitchen")
                 )
-                call.respond(RoomsResponse(rooms))
+                call.respond(RoomsDto(rooms))
             }
-            get("/api/rooms/home/state") {
+            get("/api/rooms/home") {
                 val principal = call.principal<UserPrincipal>()!!
-                RedisSingleton.publish("state.request", principal.hubId.toString())
 
                 val switches = listOf(
-                    SwitchResponse(1, "WiFi", "power", true),
-                    SwitchResponse(2, "Входная дверь", "lock", false),
+                    SwitchDto(1, "WiFi", "power", true),
+                    SwitchDto(2, "Входная дверь", "lock", false),
                 )
-                call.respond(RoomStateResponse(1L, emptyList(), switches, emptyList()))
+
+                return@get call.respond(
+                    ExpandRoomDto(0L, "Home", "Home", stateId, emptyList(), switches, emptyList())
+                )
             }
-            get("/api/rooms/{id}/state") {
+            get("/api/rooms/{id}") {
+                val roomId: Long = call.parameters["id"]!!.toLong()
                 val principal = call.principal<UserPrincipal>()!!
-                RedisSingleton.publish("state.request", principal.hubId.toString())
+                // RedisSingleton.publish("state.ktor request", principal.hubId.toString())
+
+                if (roomId == 0L) {
+                    val switches = listOf(
+                        SwitchDto(1, "WiFi", "power", true),
+                        SwitchDto(2, "Входная дверь", "lock", false),
+                    )
+
+                    return@get call.respond(
+                        ExpandRoomDto(roomId, "Home", "Home", stateId, emptyList(), switches, emptyList())
+                    )
+                }
 
                 val sensors = listOf(
-                    SensorResponse(1, "Температура", "temperature", 20.1),
-                    SensorResponse(2, "Температура в аквариуме", "temperature", 23.0),
-                    SensorResponse(3, "Общий свет", "light", 56.0),
+                    SensorDto(1, "Температура", "temperature", 20.1),
+                    SensorDto(2, "Температура в аквариуме", "temperature", 23.0),
+                    SensorDto(3, "Общий свет", "light", 56.0),
                 )
 
                 val switches = listOf(
-                    SwitchResponse(1, "Розетка (чайник)", "power", true),
-                    SwitchResponse(2, "Розетка (холодильник)", "power", false),
+                    SwitchDto(1, "Розетка (чайник)", "power", true),
+                    SwitchDto(2, "Розетка (холодильник)", "power", false),
                 )
 
                 val rangeSwitches = listOf(
-                    RangeSwitchResponse(1, "Большой кондиционер", "climat", true, 21.0),
-                    RangeSwitchResponse(2, "Свет над аквариумом", "light", true, 50.0),
+                    RangeSwitchDto(1, "Большой кондиционер", "climat", true, 21.0),
+                    RangeSwitchDto(2, "Свет над аквариумом", "light", true, 50.0),
                 )
 
-                call.respond(RoomStateResponse(1L, sensors, switches, rangeSwitches))
+                call.respond(
+                    ExpandRoomDto(roomId, "Name", "Type", stateId, sensors, switches, rangeSwitches)
+                )
+            }
+            patch("/api/switches/{id}") {
+                stateId++;
+                call.respond(MessageResponse("Scheduled to update"))
+            }
+            patch("/api/rangeSwitches/{id}") {
+                stateId++;
+                call.respond(MessageResponse("Scheduled to update"))
             }
         }
     }
