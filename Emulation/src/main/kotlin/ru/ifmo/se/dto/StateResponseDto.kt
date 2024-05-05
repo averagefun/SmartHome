@@ -1,7 +1,20 @@
 package ru.ifmo.se.dto
 
-class StateResponseDto(
+data class StateResponseDto(
     val hubId: Long,
-    val stateId: Long?,
-    val state: String
+    val state: StateDto,
+)
+
+data class StateDto(
+    val stateId: Long,
+    val rooms: List<RoomDto>
+)
+
+data class RoomDto(
+    val id: Long,
+    val name: String,
+    val type: String,
+    val sensors: List<SensorDto>,
+    val switches: List<SwitchDto>,
+    val rangeSwitches: List<RangeSwitchDto>,
 )

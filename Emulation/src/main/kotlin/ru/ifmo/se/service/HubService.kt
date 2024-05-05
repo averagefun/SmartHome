@@ -5,13 +5,14 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import ru.ifmo.se.dto.ChangeStateDto
 import ru.ifmo.se.dto.StateRequestDto
 import ru.ifmo.se.dto.StateResponseDto
 import ru.ifmo.se.models.AbstractHub
 import ru.ifmo.se.models.Hub
+import ru.ifmo.se.models.stateExample
 import ru.ifmo.se.plugins.RedisSingleton
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.random.Random
 
 class HubService {
     companion object {
@@ -20,7 +21,7 @@ class HubService {
         fun configure(){
             GlobalScope.launch {
                 while (true) {
-                    current.publisher.publish("scheduled.state", jacksonObjectMapper().writeValueAsString(current.getState()))
+                    current.publisher.publish("state.logs", jacksonObjectMapper().writeValueAsString(current.getState()))
                     delay(60000)
                 }
             }
@@ -31,7 +32,7 @@ class HubService {
     private val hubs: ConcurrentHashMap<Long, AbstractHub> = ConcurrentHashMap()
     init {
         (1L..10000L).forEach {
-            hubs[it] = Hub(it, Random.nextLong(1, 1000))
+            hubs[it] = Hub(it)
         }
     }
 
@@ -42,33 +43,28 @@ class HubService {
         when(channel){
             "state.request" -> {
                 val body = jacksonObjectMapper().readValue(payload, StateRequestDto::class.java)
-                publisher.publish("state.response", jacksonObjectMapper().writeValueAsString(getState(body.hubId)))
+                getState(body.hubId)?.copy(
+                    state = stateExample,
+                )?.let { publisher.publish("state.response", jacksonObjectMapper().writeValueAsString(it)) }            }
+            "state.update" -> {
+                val body = jacksonObjectMapper().readValue(payload, ChangeStateDto::class.java)
+                getState(body.hubId)
+                    //?.takeIf { "update only if more then hub.state.id" != null }
+                    ?.copy( // fixme
+                    state = stateExample,
+                )?.let { publisher.publish("state.response", jacksonObjectMapper().writeValueAsString(it)) }
             }
         }
     }
 
-    fun getState(hubId: Long): StateResponseDto =
+    fun getState(hubId: Long): StateResponseDto? =
         hubs[hubId]?.let {
             StateResponseDto(
                 hubId = it.hubId,
-                stateId = it.stateId,
-                state = "some state"
+                state = it.state
             )
-        } ?: StateResponseDto(
-            hubId = -1,
-            stateId = null,
-            state = "No such hub"
-        )
+        }
 
 
-    fun getState() = hubs.map { hub ->
-        hub.value.let {
-            StateResponseDto(
-                hubId = it.hubId,
-                stateId = it.stateId,
-                state = "aboba"
-        )
-    }
-    }
-
+    fun getState() = hubs.map { hub -> hub.value.state }
 }

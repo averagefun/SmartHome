@@ -21,6 +21,7 @@ object RedisSingleton {
         val url = config.property("redis.url").getString()
         redisClient = RedisClient.create(url)
         redisSubConnection = redisClient.connectPubSub()
+        redisSubConnection = redisClient.connectPubSub()
         redisCommands = redisClient.connect().sync()
         subscribe()
     }
@@ -49,6 +50,6 @@ object RedisSingleton {
 
     fun subscribe(){
         redisSubConnection.addListener(listener)
-        redisSubConnection.async().psubscribe("*")
+        redisSubConnection.async().psubscribe("state.update", "state.request")
     }
 }

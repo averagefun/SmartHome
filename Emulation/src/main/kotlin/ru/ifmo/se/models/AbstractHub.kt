@@ -1,9 +1,13 @@
 package ru.ifmo.se.models
 
+import ru.ifmo.se.dto.StateDto
+import ru.ifmo.se.dto.UpdateDto
+
 abstract class AbstractHub(
     open val hubId: Long,
-    open var stateId: Long? = null,
+    open var state: StateDto,
 ) {
-    abstract fun setState(value: String)
-    abstract fun getState(): String
+    abstract fun setStateWithUpdate(updateDto: UpdateDto)
+
+    fun getStateId() = state.stateId
 }
