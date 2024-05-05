@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  mobile_backend:
+  mobile-backend:
     image: ghcr.io/averagefun/smarthome/mobile-backend:primary
     build: "MobileBackend"
     platform: "linux/amd64"
@@ -11,7 +11,7 @@ services:
       - postgres
       - redis
 
-  emulation_backend:
+  emulation-backend:
     image: ghcr.io/averagefun/smarthome/emulation-backend:primary
     build: "Emulation"
     platform: "linux/amd64"
@@ -27,7 +27,7 @@ services:
     environment:
       - POSTGRES_DB=smarthome
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PASSWORD=zB0D2z9e@9*[
     ports:
       - "5432:5432"
 
