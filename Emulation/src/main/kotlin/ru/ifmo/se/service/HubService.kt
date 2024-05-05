@@ -10,7 +10,6 @@ import ru.ifmo.se.dto.StateRequestDto
 import ru.ifmo.se.dto.StateResponseDto
 import ru.ifmo.se.models.AbstractHub
 import ru.ifmo.se.models.Hub
-import ru.ifmo.se.models.stateExample
 import ru.ifmo.se.plugins.RedisSingleton
 import java.util.concurrent.ConcurrentHashMap
 
