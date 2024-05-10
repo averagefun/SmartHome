@@ -10,22 +10,41 @@ import kotlin.random.Random
 
 class Hub(
     override val hubId: Long,
-    override var state: StateDto = StateDto(
-        stateId = 0,
-        rooms = listOf(
-            RoomDto(
-                id = Random.nextLong(1, 1000),
-                name = "roomName",
-                type = "roomType",
-                sensors = listOf(SensorDto(id = Random.nextLong(1, 1000), value = Random.nextDouble(1.0, 1000.0))),
-                switches = listOf(SwitchDto(id = Random.nextLong(1, 1000), enabled = true)),
-                rangeSwitches = listOf(RangeSwitchDto(id = Random.nextLong(1, 1000), enabled = true, value = Random.nextDouble(1.0, 1000.0)))
-            )
-        )
-    ),
+    override var state: StateDto = mockState
 ) : AbstractHub(hubId, state) {
 
     override fun setStateWithUpdate(updateDto: UpdateDto) {
         TODO("Not yet implemented")
     }
 }
+
+val mockState = StateDto(
+    stateId = 0,
+    rooms = listOf(
+        RoomDto(
+            id = 1L,
+            name = "roomName",
+            type = "roomType",
+            sensors = listOf(
+                SensorDto(
+                    id = Random.nextLong(1, 1000),
+                    type = "%mock%",
+                    value = Random.nextDouble(1.0, 1000.0)
+                )
+            ),
+            switches = listOf(
+                SwitchDto(id = Random.nextLong(1, 1000), type = "%mock%", enabled = true)
+            ),
+            rangeSwitches = listOf(
+                RangeSwitchDto(
+                    id = Random.nextLong(1, 1000),
+                    type = "%mock%",
+                    enabled = true,
+                    value = Random.nextDouble(1.0, 100.0),
+                    minValue = 1.0,
+                    maxValue = 100.0
+                )
+            )
+        )
+    )
+)

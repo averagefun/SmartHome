@@ -5,9 +5,9 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ru.ifmo.se.dto.ChangeStateDto
 import ru.ifmo.se.dto.StateRequestDto
 import ru.ifmo.se.dto.StateResponseDto
+import ru.ifmo.se.dto.UpdateDto
 import ru.ifmo.se.models.AbstractHub
 import ru.ifmo.se.models.Hub
 import ru.ifmo.se.plugins.RedisSingleton
@@ -30,7 +30,7 @@ class HubService {
 
     private val hubs: ConcurrentHashMap<Long, AbstractHub> = ConcurrentHashMap()
     init {
-        (1L..10000L).forEach {
+        (1L..100L).forEach {
             hubs[it] = Hub(it)
         }
     }
@@ -44,12 +44,12 @@ class HubService {
                 val body = jacksonObjectMapper().readValue(payload, StateRequestDto::class.java)
                 getState(body.hubId)?.let { publisher.publish("state.response", jacksonObjectMapper().writeValueAsString(it)) }            }
             "state.update" -> {
-                val body = jacksonObjectMapper().readValue(payload, ChangeStateDto::class.java)
+                val body = jacksonObjectMapper().readValue(payload, UpdateDto::class.java)
                 if (hubs.containsKey(body.hubId) && body.update.stateId > hubs[body.hubId]!!.state.stateId){
                     hubs[body.hubId]!!.state.stateId = body.update.stateId
 
                     body.update.rangeSwitch?.let { rangeSwitch ->
-                        hubs[body.hubId]!!.state.rooms.forEach {
+                        hubs[body.hubId]!!.state.rooms.forEach { it ->
                             it.rangeSwitches.find { it.id == rangeSwitch.id }?.let {
                                 it.value = rangeSwitch.value
                                 it.enabled = rangeSwitch.enabled
@@ -57,7 +57,7 @@ class HubService {
                         }
                     }
                     body.update.switch?.let { switch ->
-                        hubs[body.hubId]!!.state.rooms.forEach {
+                        hubs[body.hubId]!!.state.rooms.forEach { it ->
                             it.switches.find { it.id == switch.id }?.let {
                                 it.enabled = switch.enabled
                             }
@@ -76,7 +76,6 @@ class HubService {
                 state = it.state
             )
         }
-
 
     fun getState() = hubs.map { hub -> hub.value.state }
 }
