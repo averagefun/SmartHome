@@ -25,18 +25,21 @@ data class RoomDto(
 
 data class SensorDto(
     val id: Long,
+    val name: String,
     val type: String,
     val value: Double,
 )
 
 data class SwitchDto(
     val id: Long,
+    val name: String,
     val type: String,
     val enabled: Boolean,
 )
 
 data class RangeSwitchDto(
     val id: Long,
+    val name: String,
     val type: String,
     val enabled: Boolean,
     val value: Double,

@@ -21,8 +21,8 @@ data class ExpandRoomFrontDto(
 )
 
 val rooms = listOf(
-    RoomFrontDto(0, "Улица", "outside"),
-    RoomFrontDto(1, "Дом", "home"),
+    RoomFrontDto(1, "Улица", "outside"),
+    RoomFrontDto(2, "Дом", "home"),
     RoomFrontDto(3, "Прихожая", "hallway"),
     RoomFrontDto(4, "Гостиная", "living"),
     RoomFrontDto(5, "Спальня", "living"),
