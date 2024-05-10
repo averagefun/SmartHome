@@ -1,55 +1,45 @@
 package ru.ifmo.se.dto
 
-class StateDto(
-    val hubId: Long,
-    val rooms: List<ExpandRoomDto>
+data class StateRequestDto(
+    val hubId: Long
 )
 
-class RoomsDto(
+data class StateResponseDto(
+    var hubId: Long,
+    val state: StateDto
+)
+
+data class StateDto(
+    var stateId: Long,
     val rooms: List<RoomDto>
 )
 
-class RoomDto(
-    val id: Long,
-    val name: String,
-    val type: String
-)
-
-class ExpandRoomDto(
+data class RoomDto(
     val id: Long,
     val name: String,
     val type: String,
-    val stateId: Long,
     val sensors: List<SensorDto>,
     val switches: List<SwitchDto>,
-    val rangeSwitches: List<RangeSwitchDto>
+    val rangeSwitches: List<RangeSwitchDto>,
 )
 
-class RoomStateDto(
-    val stateId: Long,
-    val sensors: List<SensorDto>,
-    val switches: List<SwitchDto>,
-    val rangeSwitches: List<RangeSwitchDto>
-)
-
-class SensorDto(
+data class SensorDto(
     val id: Long,
-    val name: String,
     val type: String,
-    val value: Double
+    val value: Double,
 )
 
-class SwitchDto(
+data class SwitchDto(
     val id: Long,
-    val name: String,
-    val type: String,
-    val enabled: Boolean
-)
-
-class RangeSwitchDto(
-    val id: Long,
-    val name: String,
     val type: String,
     val enabled: Boolean,
-    val value: Double
+)
+
+data class RangeSwitchDto(
+    val id: Long,
+    val type: String,
+    val enabled: Boolean,
+    val value: Double,
+    val minValue: Double,
+    val maxValue: Double
 )

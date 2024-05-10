@@ -4,6 +4,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.config.ApplicationConfig
 import io.lettuce.core.RedisClient
 import io.lettuce.core.api.sync.RedisCommands
+import io.lettuce.core.pubsub.RedisPubSubListener
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
 import java.time.Duration
 
@@ -32,5 +33,13 @@ object RedisSingleton {
 
     fun publish(channel: String, message: Any) {
         redisCommands.publish(channel, objectMapper.writeValueAsString(message))
+    }
+
+    fun subscribe(pattern: String) {
+        redisSubConnection.async().psubscribe(pattern)
+    }
+
+    fun addListener(listener: RedisPubSubListener<String, String>) {
+        redisSubConnection.addListener(listener)
     }
 }
