@@ -84,5 +84,5 @@ class HubService {
             )
         }
 
-    fun getState() = hubs.map { hub -> hub.value.getState() }
+    fun getState() = hubs.map { hub -> StateResponseDto(hub.key, hub.value.getState()) }
 }
