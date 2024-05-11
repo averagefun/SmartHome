@@ -58,7 +58,7 @@ open class Hub(
 
     override fun getState(): StateDto {
         val roomDtos = rooms.map { it.toRoomDto() }
-        return StateDto(stateId = hubId, rooms = roomDtos)
+        return StateDto(stateId = stateId, rooms = roomDtos)
     }
 
     override fun startSimulation(scope: CoroutineScope, timeRate: Long) {
