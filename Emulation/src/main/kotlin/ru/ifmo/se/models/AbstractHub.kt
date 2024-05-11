@@ -1,13 +1,16 @@
 package ru.ifmo.se.models
 
+import kotlinx.coroutines.CoroutineScope
 import ru.ifmo.se.dto.StateDto
 import ru.ifmo.se.dto.UpdateDto
 
 abstract class AbstractHub(
     open val hubId: Long,
-    open val state: StateDto,
+    open var stateId: Long
 ) {
     abstract fun setStateWithUpdate(updateDto: UpdateDto)
 
-    fun getStateId() = state.stateId
+    abstract fun getState(): StateDto
+
+    abstract fun startSimulation(scope: CoroutineScope, timeRate: Long)
 }
