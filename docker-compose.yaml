@@ -19,6 +19,25 @@ services:
       - "8090:8090"
     depends_on:
       - redis
+    
+  log-backend:
+    image: ghcr.io/averagefun/smarthome/log-backend:primary
+    build: "LogService"
+    platform: "linux/amd64"
+    ports:
+      - "8070:8070"
+    depends_on:
+      - clickhouse-server
+
+  db-backend:
+    image: ghcr.io/averagefun/smarthome/db-backend:primary
+    build: "DbService"
+    platform: "linux/amd64"
+    ports:
+      - "8060:8060"
+    depends_on:
+      - clickhouse-server
+      - redis
 
   postgres:
     image: postgres:16-alpine
@@ -48,6 +67,8 @@ services:
       - '9000:9000'
     volumes:
       - clickhouse_data:/var/lib/clickhouse
+      - ./LogService/src/main/resources/db:/docker-entrypoint-initdb.d
+      - ./DbService/src/main/resources/db:/docker-entrypoint-initdb.d
 
 volumes:
   postgres_data:
