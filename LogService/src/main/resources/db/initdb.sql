@@ -8,5 +8,4 @@ CREATE TABLE IF NOT EXISTS logs
     environment String,
     service String
 )
-ENGINE = MergeTree()
-PRIMARY KEY (timestamp);
+ENGINE = Log();
