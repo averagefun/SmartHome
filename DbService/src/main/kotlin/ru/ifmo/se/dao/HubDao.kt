@@ -8,6 +8,7 @@ import com.clickhouse.data.ClickHouseDataStreamFactory
 import com.clickhouse.data.ClickHouseFormat
 import com.clickhouse.data.format.BinaryStreamUtils
 import kotlinx.coroutines.future.await
+import ru.ifmo.se.logger
 import ru.ifmo.se.model.AggregatedState
 import ru.ifmo.se.model.HubState
 import java.time.LocalDateTime
@@ -44,18 +45,8 @@ class HubDao(
     }
 
     suspend fun getStates(hubId: Long, id: Long, from: String?, to: String?) : List<AggregatedState> {
-
-        // val response = clickHouseClient
-        //     .read(clickHouseServer)
-        //     .format(ClickHouseFormat.RowBinaryWithNamesAndTypes)
-        //     .query("select * from states where hub_id=:hub_id and id=:id and date>=:from and date<=:to")
-        //     .params(hubId.toString(), id.toString(), "'$from'", "'$to'")
-        //     .table("states")
-        //     .execute()
-        //     .await()
-
         var states = emptyList<AggregatedState>()
-        clickHouseClient.use { client ->
+        ClickHouseClient.newInstance(ClickHouseProtocol.HTTP).use { client ->
             client.read(clickHouseServer)
                 .format(ClickHouseFormat.RowBinaryWithNamesAndTypes)
                 .query("select * from states where hub_id=:hub_id and id=:id and date>=:from and date<=:to")
@@ -71,14 +62,6 @@ class HubDao(
                     }
                 }
         }
-        // response.records().forEach { clickHouseRecord ->
-        //     states.plus(AggregatedState(
-        //         clickHouseRecord.getValue(0).asLong(),
-        //         clickHouseRecord.getValue(0).asLong(),
-        //         clickHouseRecord.getValue(0).asDouble(),
-        //         clickHouseRecord.getValue(0).asDateTime()
-        //     ))
-        // }
         return states
     }
 }

@@ -54,6 +54,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("com.github.vitalyros:redisson-kotlin-coroutines-reactive:0.0.1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.0")
+    implementation("org.json:json:20230618")
+    implementation("commons-io:commons-io:2.13.0")
 }
 
 ktor {

@@ -8,10 +8,14 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.netty.EngineMain
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import org.slf4j.LoggerFactory
 import ru.ifmo.se.plugins.configureRedis
 import ru.ifmo.se.plugins.configureRouting
 
 fun main(args: Array<String>): Unit = EngineMain.main(args)
+
+val logger: ch.qos.logback.classic.Logger =
+    LoggerFactory.getLogger("db-backend-ktor") as ch.qos.logback.classic.Logger
 
 fun Application.module() {
     configureSerialization()
