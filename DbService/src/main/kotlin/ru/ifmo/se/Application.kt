@@ -1,6 +1,5 @@
 package ru.ifmo.se
 
-import ru.ifmo.se.plugins.configureRouting
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -10,6 +9,7 @@ import io.ktor.server.application.install
 import io.ktor.server.netty.EngineMain
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import ru.ifmo.se.plugins.configureRedis
+import ru.ifmo.se.plugins.configureRouting
 
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 

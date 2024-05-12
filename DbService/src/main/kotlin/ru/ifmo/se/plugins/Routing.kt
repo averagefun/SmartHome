@@ -10,17 +10,11 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.awaitSingle
-import org.redisson.Redisson
 import org.redisson.api.RedissonReactiveClient
-import org.redisson.config.Config
 import ru.ifmo.se.dao.HubDao
 import ru.ifmo.se.dto.StateResponse
 import ru.ifmo.se.model.HubState
-import java.sql.Timestamp
-import java.time.Instant
-import java.time.ZoneId
 
 lateinit var client: RedissonReactiveClient
 val IODispatcher = Dispatchers.IO
@@ -49,18 +43,4 @@ fun Application.configureRouting() {
     }
 }
 
-fun Application.configureRedis() {
-    val hubDao = HubDao(environment.config.property("storage.clickhouse.url").getString())
 
-    val config = Config()
-    config.useSingleServer().address = environment.config.property("storage.redis.url").getString()
-    client = Redisson.create(config).reactive()
-
-    val topic = environment.config.property("storage.redis.topic").getString()
-
-    client.getTopic(topic).addListener(HubState::class.java) { _, msg ->
-        coroutineScope.launch {
-            hubDao.saveStateEntries(msg)
-        }
-    }.block()
-}
