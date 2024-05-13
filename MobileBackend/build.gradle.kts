@@ -37,8 +37,10 @@ dependencies {
     implementation("io.ktor:ktor-server-auth-jwt-jvm:$ktor_version")
     implementation("org.mindrot:jbcrypt:0.4")
 
-    // logback
+    // loggers
+    implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("commons-io:commons-io:2.13.0")
 
     // database
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
