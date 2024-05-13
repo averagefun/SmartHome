@@ -3,29 +3,27 @@ package ru.ifmo.se.log
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.AppenderBase
 import ch.qos.logback.core.encoder.Encoder
+import com.typesafe.config.ConfigFactory
+import io.ktor.server.config.HoconApplicationConfig
 import org.apache.commons.io.IOUtils
 import org.apache.commons.io.IOUtils.write
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 import java.nio.charset.Charset
 
-class HttpAppender: AppenderBase<ILoggingEvent>() {
+class HttpAppender : AppenderBase<ILoggingEvent>() {
+    private val config = HoconApplicationConfig(ConfigFactory.load())
 
-    private val protocol = "http"
-    private val path = "/log"
-    private val port = 8080
     private var body: String? = null
-    private val url = "localhost"
-
     private var encoder: Encoder<ILoggingEvent>? = null
 
     override fun append(event: ILoggingEvent?) {
         var conn: HttpURLConnection? = null
 
         try {
-            val urlObj = URL(protocol, url, port, path);
+            val url = URI(config.property("logger.url").getString()).toURL()
             addInfo("URL: $url")
-            conn = urlObj.openConnection() as HttpURLConnection
+            conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "POST"
             conn.setRequestProperty("Content-Type", "application/json")
             val objEncoded = encoder!!.encode(event)
