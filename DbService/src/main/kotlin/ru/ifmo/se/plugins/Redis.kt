@@ -5,7 +5,7 @@ import kotlinx.coroutines.launch
 import org.redisson.Redisson
 import org.redisson.config.Config
 import ru.ifmo.se.dao.HubDao
-import ru.ifmo.se.model.HubState
+import ru.ifmo.se.dto.StateLogs
 
 fun Application.configureRedis() {
     val hubDao = HubDao(environment.config.property("storage.clickhouse.url").getString())
@@ -16,9 +16,11 @@ fun Application.configureRedis() {
 
     val topic = environment.config.property("storage.redis.topic").getString()
 
-    client.getTopic(topic).addListener(HubState::class.java) { _, msg ->
+    client.getTopic(topic).addListener(StateLogs::class.java) { _, msg ->
         coroutineScope.launch {
-            hubDao.saveStateEntries(msg)
+            for (hubState in msg.states) {
+                hubDao.saveStateEntries(hubState)
+            }
         }
     }.block()
 }

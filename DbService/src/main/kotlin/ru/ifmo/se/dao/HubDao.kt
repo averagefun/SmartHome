@@ -2,13 +2,11 @@ package ru.ifmo.se.dao
 
 import com.clickhouse.client.ClickHouseClient
 import com.clickhouse.client.ClickHouseNodes
-import com.clickhouse.client.ClickHouseParameterizedQuery
 import com.clickhouse.client.ClickHouseProtocol
 import com.clickhouse.data.ClickHouseDataStreamFactory
 import com.clickhouse.data.ClickHouseFormat
 import com.clickhouse.data.format.BinaryStreamUtils
 import kotlinx.coroutines.future.await
-import ru.ifmo.se.logger
 import ru.ifmo.se.model.AggregatedState
 import ru.ifmo.se.model.HubState
 import java.time.LocalDateTime
@@ -44,7 +42,7 @@ class HubDao(
         } }
     }
 
-    suspend fun getStates(hubId: Long, id: Long, from: String?, to: String?) : List<AggregatedState> {
+    fun getStates(hubId: Long, id: Long, from: String?, to: String?) : List<AggregatedState> {
         var states = emptyList<AggregatedState>()
         ClickHouseClient.newInstance(ClickHouseProtocol.HTTP).use { client ->
             client.read(clickHouseServer)
