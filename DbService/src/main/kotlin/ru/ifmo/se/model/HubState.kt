@@ -21,16 +21,24 @@ data class Room (
 
 data class Sensor (
     val id: Long,
+    val name: String,
+    val type: String,
     val value: Double,
 )
 
 data class Switch (
     val id: Long,
+    val name: String,
+    val type: String,
     val enabled: Boolean,
 )
 
 data class RangeSwitch (
     val id: Long,
+    val name: String,
+    val type: String,
     val enabled: Boolean,
     val value: Double,
+    val minValue: Double,
+    val maxValue: Double,
 )

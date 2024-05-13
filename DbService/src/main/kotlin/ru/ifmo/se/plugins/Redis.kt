@@ -1,24 +1,62 @@
 package ru.ifmo.se.plugins
 
 import io.ktor.server.application.Application
-import kotlinx.coroutines.launch
-import org.redisson.Redisson
-import org.redisson.config.Config
+import io.ktor.server.config.ApplicationConfig
+import io.lettuce.core.RedisClient
+import io.lettuce.core.api.sync.RedisCommands
+import io.lettuce.core.pubsub.RedisPubSubListener
+import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
+import kotlinx.coroutines.runBlocking
 import ru.ifmo.se.dao.HubDao
 import ru.ifmo.se.model.HubState
+import ru.ifmo.se.objectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 
 fun Application.configureRedis() {
-    val hubDao = HubDao(environment.config.property("storage.clickhouse.url").getString())
+    RedisSingleton.init(environment.config)
+}
 
-    val config = Config()
-    config.useSingleServer().address = environment.config.property("storage.redis.url").getString()
-    client = Redisson.create(config).reactive()
+object RedisSingleton {
+    lateinit var redisClient: RedisClient
+    lateinit var redisSubConnection: StatefulRedisPubSubConnection<String, String>
+    lateinit var redisCommands: RedisCommands<String, String>
+    lateinit var hubDao: HubDao
 
-    val topic = environment.config.property("storage.redis.topic").getString()
+    fun init(config: ApplicationConfig) {
+        val url = config.property("storage.redis.url").getString()
+        hubDao = HubDao(config.property("storage.clickhouse.url").getString())
+        redisClient = RedisClient.create(url)
+        redisSubConnection = redisClient.connectPubSub()
+        redisSubConnection = redisClient.connectPubSub()
+        redisCommands = redisClient.connect().sync()
+        subscribe()
+    }
 
-    client.getTopic(topic).addListener(HubState::class.java) { _, msg ->
-        coroutineScope.launch {
-            hubDao.saveStateEntries(msg)
+    private val listener = object : RedisPubSubListener<String, String> {
+        override fun message(channel: String, message: String) {
         }
-    }.block()
+        override fun message(pattern: String?, channel: String?, message: String?): Unit =
+            channel?.let {
+                val hubStates: List<HubState> = message?.let { it1 -> objectMapper.readValue(it1) } ?: emptyList()
+                runBlocking { hubDao.saveStateEntries(hubStates) }
+            } ?: Unit
+
+        override fun subscribed(channel: String?, count: Long) {
+        }
+
+        override fun psubscribed(pattern: String?, count: Long) {
+        }
+
+        override fun unsubscribed(channel: String?, count: Long) {
+        }
+
+        override fun punsubscribed(pattern: String?, count: Long) {
+        }
+    }
+
+
+    fun subscribe(){
+        redisSubConnection.addListener(listener)
+        redisSubConnection.async().psubscribe("state.logs")
+    }
 }

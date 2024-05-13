@@ -2,13 +2,11 @@ package ru.ifmo.se.dao
 
 import com.clickhouse.client.ClickHouseClient
 import com.clickhouse.client.ClickHouseNodes
-import com.clickhouse.client.ClickHouseParameterizedQuery
 import com.clickhouse.client.ClickHouseProtocol
 import com.clickhouse.data.ClickHouseDataStreamFactory
 import com.clickhouse.data.ClickHouseFormat
 import com.clickhouse.data.format.BinaryStreamUtils
 import kotlinx.coroutines.future.await
-import ru.ifmo.se.logger
 import ru.ifmo.se.model.AggregatedState
 import ru.ifmo.se.model.HubState
 import java.time.LocalDateTime
@@ -21,9 +19,9 @@ class HubDao(
     private val clickHouseServer: ClickHouseNodes = ClickHouseNodes.of(clickHouseUrl)
 
 
-    suspend fun saveStateEntries(entity: HubState) {
+    suspend fun saveStateEntries(entity: List<HubState>) {
         val time = LocalDateTime.now()
-        entity.state.rooms.forEach{ room -> room.sensors.forEach { sensor ->
+        entity.forEach{hubState -> hubState.state.rooms.forEach{ room -> room.sensors.forEach { sensor ->
             val request = clickHouseClient
                 .read(clickHouseServer)
                 .format(ClickHouseFormat.RowBinary)
@@ -31,7 +29,7 @@ class HubDao(
                 .table("states")
 
             val stream = ClickHouseDataStreamFactory.getInstance().createPipedOutputStream(request.config)
-            BinaryStreamUtils.writeInt64(stream, entity.hubId)
+            BinaryStreamUtils.writeInt64(stream, hubState.hubId)
             BinaryStreamUtils.writeInt64(stream, sensor.id)
             BinaryStreamUtils.writeFloat64(stream, sensor.value)
             BinaryStreamUtils.writeDateTime(stream, time, TimeZone.getDefault())
@@ -41,10 +39,10 @@ class HubDao(
             request.data(stream.inputStream)
                 .execute()
                 .await()
-        } }
+        } }}
     }
 
-    suspend fun getStates(hubId: Long, id: Long, from: String?, to: String?) : List<AggregatedState> {
+    fun getStates(hubId: Long, id: Long, from: String?, to: String?) : List<AggregatedState> {
         var states = emptyList<AggregatedState>()
         ClickHouseClient.newInstance(ClickHouseProtocol.HTTP).use { client ->
             client.read(clickHouseServer)
