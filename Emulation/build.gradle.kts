@@ -37,8 +37,10 @@ dependencies {
     implementation("io.lettuce:lettuce-core:6.2.6.RELEASE")
     implementation("com.redis:lettucemod:3.6.3")
 
-    implementation("org.slf4j:slf4j-api:1.6.1")
-    implementation("org.slf4j:slf4j-simple:1.6.1")
+    // loggers
+    implementation("org.slf4j:slf4j-api:2.0.7")
+    implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("commons-io:commons-io:2.13.0")
 }
 
 ktor {

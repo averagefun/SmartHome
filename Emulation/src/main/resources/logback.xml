@@ -1,11 +1,29 @@
 <configuration>
+    <property name="CHARSET" value="UTF-8"/>
+    <property name="PATTERN" value='{
+            "timestamp": "%d{yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSS&apos;Z&apos;}",
+            "thread": "%thread",
+            "level": "%-5level",
+            "logger": "%logger",
+            "message": "%msg",
+            "environment": "production",
+            "service": "emulation.backend"
+    }'/>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+    <appender name="HTTP" class="ru.ifmo.se.utils.HttpAppender">
+        <body>$event</body>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+            <charset>${CHARSET}</charset>
+        </encoder>
+    </appender>
     <root level="info">
         <appender-ref ref="STDOUT"/>
+        <appender-ref ref="HTTP"/>
     </root>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
