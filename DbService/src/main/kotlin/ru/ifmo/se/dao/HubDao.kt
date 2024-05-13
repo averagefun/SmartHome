@@ -19,9 +19,9 @@ class HubDao(
     private val clickHouseServer: ClickHouseNodes = ClickHouseNodes.of(clickHouseUrl)
 
 
-    suspend fun saveStateEntries(entity: HubState) {
+    suspend fun saveStateEntries(entity: List<HubState>) {
         val time = LocalDateTime.now()
-        entity.state.rooms.forEach{ room -> room.sensors.forEach { sensor ->
+        entity.forEach{hubState -> hubState.state.rooms.forEach{ room -> room.sensors.forEach { sensor ->
             val request = clickHouseClient
                 .read(clickHouseServer)
                 .format(ClickHouseFormat.RowBinary)
@@ -29,7 +29,7 @@ class HubDao(
                 .table("states")
 
             val stream = ClickHouseDataStreamFactory.getInstance().createPipedOutputStream(request.config)
-            BinaryStreamUtils.writeInt64(stream, entity.hubId)
+            BinaryStreamUtils.writeInt64(stream, hubState.hubId)
             BinaryStreamUtils.writeInt64(stream, sensor.id)
             BinaryStreamUtils.writeFloat64(stream, sensor.value)
             BinaryStreamUtils.writeDateTime(stream, time, TimeZone.getDefault())
@@ -39,7 +39,7 @@ class HubDao(
             request.data(stream.inputStream)
                 .execute()
                 .await()
-        } }
+        } }}
     }
 
     fun getStates(hubId: Long, id: Long, from: String?, to: String?) : List<AggregatedState> {
