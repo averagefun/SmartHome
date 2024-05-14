@@ -61,14 +61,12 @@ services:
 
   clickhouse-server:
     image: yandex/clickhouse-server
-    container_name: clickhouse-server
     ports:
       - '8123:8123'
       - '9000:9000'
     volumes:
       - clickhouse_data:/var/lib/clickhouse
-      - ./LogService/src/main/resources/db:/docker-entrypoint-initdb.d
-      - ./DbService/src/main/resources/db:/docker-entrypoint-initdb.d
+      - ./initdb:/docker-entrypoint-initdb.d
 
 volumes:
   postgres_data:
