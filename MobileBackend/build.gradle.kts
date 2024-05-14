@@ -25,13 +25,16 @@ repositories {
 }
 
 dependencies {
-    // ktor
+    // ktor-server
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
     implementation("io.ktor:ktor-serialization:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
+
+    // jackson
     implementation("io.ktor:ktor-serialization-jackson:$ktor_version")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.0")
 
     // security
     implementation("io.ktor:ktor-server-auth-jwt-jvm:$ktor_version")
@@ -51,6 +54,11 @@ dependencies {
     // redis
     implementation("io.lettuce:lettuce-core:6.2.6.RELEASE")
     implementation("com.redis:lettucemod:3.6.3")
+
+    // ktor-client
+    implementation("io.ktor:ktor-client-core:2.x.x")
+    implementation("io.ktor:ktor-client-cio:2.x.x")
+    implementation("io.ktor:ktor-client-content-negotiation:2.x.x")
 
     // tests
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")

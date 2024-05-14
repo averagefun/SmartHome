@@ -3,6 +3,7 @@ package ru.ifmo.se
 import io.ktor.server.application.Application
 import io.ktor.server.netty.EngineMain
 import org.slf4j.LoggerFactory
+import ru.ifmo.se.plugins.configureClient
 import ru.ifmo.se.plugins.configureDatabase
 import ru.ifmo.se.plugins.configureRedis
 import ru.ifmo.se.plugins.configureSecurity
@@ -20,4 +21,5 @@ fun Application.module() {
     configureSecurity()
     configureSerialization()
     configureRoutes()
+    configureClient()
 }
