@@ -35,7 +35,7 @@ class HubService {
     private val hubs: ConcurrentHashMap<Long, AbstractHub> = ConcurrentHashMap()
 
     init {
-        (1L..100L).forEach {
+        (1L..10L).forEach {
             hubs[it] = SmartHomeHub(it)
         }
         startSumulation()
