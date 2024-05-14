@@ -19,7 +19,14 @@ services:
       - "8090:8090"
     depends_on:
       - redis
-    
+
+  request-maker:
+    image: ghcr.io/averagefun/smarthome/request-maker:primary
+    build: "RequestMaker"
+    platform: "linux/amd64"
+    ports:
+      - "8091:8091"
+
   log-backend:
     image: ghcr.io/averagefun/smarthome/log-backend:primary
     build: "LogService"
