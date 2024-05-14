@@ -3,14 +3,13 @@ package ru.ifmo.se.dao
 import com.clickhouse.client.ClickHouseClient
 import com.clickhouse.client.ClickHouseNodes
 import com.clickhouse.client.ClickHouseProtocol
-import com.clickhouse.data.ClickHouseDataStreamFactory
 import com.clickhouse.data.ClickHouseFormat
-import com.clickhouse.data.format.BinaryStreamUtils
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.await
+import kotlinx.coroutines.launch
 import ru.ifmo.se.model.AggregatedState
 import ru.ifmo.se.model.HubState
-import java.time.LocalDateTime
-import java.util.TimeZone
 
 class HubDao(
     clickHouseUrl: String,
@@ -18,28 +17,25 @@ class HubDao(
     private val clickHouseClient: ClickHouseClient = ClickHouseClient.newInstance(ClickHouseProtocol.HTTP)
     private val clickHouseServer: ClickHouseNodes = ClickHouseNodes.of(clickHouseUrl)
 
-
-    suspend fun saveStateEntries(entity: List<HubState>) {
-        val time = LocalDateTime.now()
+    @OptIn(DelicateCoroutinesApi::class)
+    fun saveStateEntries(entity: List<HubState>) {
+        var query = "insert into states (hub_id, id, value, date) VALUES"
         entity.forEach{hubState -> hubState.state.rooms.forEach{ room -> room.sensors.forEach { sensor ->
-            val request = clickHouseClient
-                .read(clickHouseServer)
-                .format(ClickHouseFormat.RowBinary)
-                .write()
-                .table("states")
+            query += "(${hubState.hubId}, ${sensor.id}, ${sensor.value}, now()),"
 
-            val stream = ClickHouseDataStreamFactory.getInstance().createPipedOutputStream(request.config)
-            BinaryStreamUtils.writeInt64(stream, hubState.hubId)
-            BinaryStreamUtils.writeInt64(stream, sensor.id)
-            BinaryStreamUtils.writeFloat64(stream, sensor.value)
-            BinaryStreamUtils.writeDateTime(stream, time, TimeZone.getDefault())
-
-            stream.close()
-
-            request.data(stream.inputStream)
-                .execute()
-                .await()
         } }}
+
+        val request = clickHouseClient
+            .read(clickHouseServer)
+            .write()
+            .format(ClickHouseFormat.RowBinary)
+            .query(query)
+
+        GlobalScope.launch {
+            request.execute().await()
+        }
+
+
     }
 
     fun getStates(hubId: Long, id: Long, from: String?, to: String?) : List<AggregatedState> {

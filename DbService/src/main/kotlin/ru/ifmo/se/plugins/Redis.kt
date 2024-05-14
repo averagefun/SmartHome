@@ -6,7 +6,6 @@ import io.lettuce.core.RedisClient
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.pubsub.RedisPubSubListener
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection
-import kotlinx.coroutines.runBlocking
 import ru.ifmo.se.dao.HubDao
 import ru.ifmo.se.model.HubState
 import ru.ifmo.se.objectMapper
@@ -35,10 +34,11 @@ object RedisSingleton {
     private val listener = object : RedisPubSubListener<String, String> {
         override fun message(channel: String, message: String) {
         }
+
         override fun message(pattern: String?, channel: String?, message: String?): Unit =
             channel?.let {
                 val hubStates: List<HubState> = message?.let { it1 -> objectMapper.readValue(it1) } ?: emptyList()
-                runBlocking { hubDao.saveStateEntries(hubStates) }
+                hubDao.saveStateEntries(hubStates)
             } ?: Unit
 
         override fun subscribed(channel: String?, count: Long) {
