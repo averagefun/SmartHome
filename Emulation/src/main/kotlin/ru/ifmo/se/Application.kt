@@ -10,5 +10,5 @@ fun main(args: Array<String>) = EngineMain.main(args)
 
 fun Application.module() {
     configureRedis()
-    HubService.configure()
+    HubService.configure(environment.config)
 }
