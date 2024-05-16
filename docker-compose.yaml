@@ -20,6 +20,34 @@ services:
     depends_on:
       - redis
 
+  request-maker:
+    image: ghcr.io/averagefun/smarthome/request-maker:primary
+    build: "RequestMaker"
+    platform: "linux/amd64"
+    ports:
+      - "8091:8091"
+    depends_on:
+      - mobile-backend
+
+  log-backend:
+    image: ghcr.io/averagefun/smarthome/log-backend:primary
+    build: "LogService"
+    platform: "linux/amd64"
+    ports:
+      - "8070:8070"
+    depends_on:
+      - clickhouse-server
+
+  db-backend:
+    image: ghcr.io/averagefun/smarthome/db-backend:primary
+    build: "DbService"
+    platform: "linux/amd64"
+    ports:
+      - "8060:8060"
+    depends_on:
+      - clickhouse-server
+      - redis
+
   postgres:
     image: postgres:16-alpine
     volumes:
@@ -42,12 +70,12 @@ services:
 
   clickhouse-server:
     image: yandex/clickhouse-server
-    container_name: clickhouse-server
     ports:
       - '8123:8123'
       - '9000:9000'
     volumes:
       - clickhouse_data:/var/lib/clickhouse
+      - ./initdb:/docker-entrypoint-initdb.d
 
 volumes:
   postgres_data:

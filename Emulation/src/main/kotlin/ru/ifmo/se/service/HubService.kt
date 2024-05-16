@@ -15,11 +15,14 @@ import ru.ifmo.se.plugins.RedisSingleton
 import java.util.concurrent.ConcurrentHashMap
 
 class HubService {
+
     companion object {
+        var clientsCount: Int = 0
         val current = HubService()
 
         @OptIn(DelicateCoroutinesApi::class)
-        fun configure() {
+        fun configure(config: ApplicationConfig) {
+            clientsCount = config.property("emulation.clientsCount").getString().toInt()
             GlobalScope.launch {
                 while (true) {
                     current.publisher.publish(
@@ -35,7 +38,7 @@ class HubService {
     private val hubs: ConcurrentHashMap<Long, AbstractHub> = ConcurrentHashMap()
 
     init {
-        (1L..100).forEach {
+        (1L..clientsCount).forEach {
             hubs[it] = SmartHomeHub(it)
         }
         startSumulation()
@@ -84,5 +87,5 @@ class HubService {
             )
         }
 
-    fun getState() = hubs.map { hub -> hub.value.getState() }
+    fun getState() = hubs.map { hub -> StateResponseDto(hub.key, hub.value.getState()) }
 }
