@@ -42,11 +42,16 @@ fun Application.sensorRoutes() {
 }
 
 fun buildSensorHistoryFrontDto(sensorId: Long, sensorHistoryDto: SensorHistoryDto): SensorHistoryFrontDto {
-    val seconds: MutableList<Long> = arrayListOf()
-    val values: MutableList<Double> = arrayListOf()
-    sensorHistoryDto.states.forEach { value ->
-        seconds.addLast(value.date.toEpochSecond(ZoneOffset.ofHours(3)))
-        values.addLast(value.value)
+    val sortedStates = sensorHistoryDto.states
+        .sortedBy { it.date }
+
+    val seconds = mutableListOf<Long>()
+    val values = mutableListOf<Double>()
+
+    sortedStates.forEach { value ->
+        seconds.add(value.date.toEpochSecond(ZoneOffset.UTC))
+        values.add(value.value)
     }
+
     return SensorHistoryFrontDto(sensorId, seconds, values)
 }
