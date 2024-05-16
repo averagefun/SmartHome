@@ -52,7 +52,7 @@ open class Room(
         val prev = sensorSources.getOrDefault(type, def)
         sensorSources[type] = prev + getFinalSensorSourceDx(type, prev) + defDx
 
-        println("Update $type in room $name to " + sensorSources[type])
+        // println("Update $type in room $name to " + sensorSources[type])
     }
 
     fun getFinalSensorSourceDx(type: SensorType, prev: Double): Double {
@@ -141,7 +141,7 @@ open class Home(
                 newVal /= targets.size
             }
             sensorSources[type] = newVal
-            println("Update $type in room $name to " + sensorSources[type])
+            //println("Update $type in room $name to " + sensorSources[type])
         }
     }
 }

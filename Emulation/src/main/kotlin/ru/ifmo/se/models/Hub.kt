@@ -64,7 +64,7 @@ open class Hub(
     override fun startSimulation(scope: CoroutineScope, timeRate: Long) {
         updateJob = scope.launch(Dispatchers.IO) {
             while (isActive) {
-                rooms.forEach{it.update()}
+                rooms.forEach { it.update() }
                 delay(timeRate)
             }
         }
@@ -87,7 +87,7 @@ open class Hub(
         id = id,
         name = name,
         type = type.name.lowercase(Locale.getDefault()),
-        value = getValue() ?: Double.MIN_VALUE
+        value = round(getValue()) ?: Double.MIN_VALUE
     )
 
     private fun Switch.toSwitchDto() = SwitchDto(
@@ -106,4 +106,11 @@ open class Hub(
         minValue = minValue,
         maxValue = maxValue
     )
+
+    private fun round(value: Double?): Double? {
+        if (value != null) {
+            return String.format("%.2f", value).toDouble()
+        }
+        return null;
+    }
 }
