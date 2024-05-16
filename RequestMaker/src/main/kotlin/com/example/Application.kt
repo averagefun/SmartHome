@@ -46,9 +46,9 @@ fun Application.module() {
             })
         }
     }
-
     (1..clientsCount).forEach { clientId ->
         launch {
+            delay(20000)
             val jwt = client.getJwt(clientId, baseUrl)
             while (true){
                 client.makeRequests(baseUrl, delaySeconds, jwt)
