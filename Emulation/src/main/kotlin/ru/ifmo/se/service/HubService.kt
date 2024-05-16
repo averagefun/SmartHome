@@ -33,17 +33,14 @@ class HubService {
                     delay(60000)
                 }
             }
+            (1L..clientsCount).forEach {
+                current.hubs[it] = SmartHomeHub(it)
+            }
+            current.startSumulation()
         }
     }
 
     private val hubs: ConcurrentHashMap<Long, AbstractHub> = ConcurrentHashMap()
-
-    init {
-        (1L..clientsCount).forEach {
-            hubs[it] = SmartHomeHub(it)
-        }
-        startSumulation()
-    }
 
     @OptIn(DelicateCoroutinesApi::class)
     fun startSumulation() {
