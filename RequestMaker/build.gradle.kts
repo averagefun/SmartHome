@@ -10,6 +10,7 @@ plugins {
     application
     kotlin("jvm") version "1.9.23"
     id("io.ktor.plugin") version "2.3.10"
+    kotlin("plugin.serialization") version "1.9.24"
 }
 
 group = "ru.ifmo.se"
@@ -30,7 +31,6 @@ dependencies {
     implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
     implementation("io.ktor:ktor-serialization:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
-    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-serialization-jackson:$ktor_version")
     implementation("io.ktor:ktor-client-core:$ktor_version")
     implementation("io.ktor:ktor-client-cio:$ktor_version")

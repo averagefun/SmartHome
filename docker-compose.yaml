@@ -26,6 +26,8 @@ services:
     platform: "linux/amd64"
     ports:
       - "8091:8091"
+    depends_on:
+      - mobile-backend
 
   log-backend:
     image: ghcr.io/averagefun/smarthome/log-backend:primary
