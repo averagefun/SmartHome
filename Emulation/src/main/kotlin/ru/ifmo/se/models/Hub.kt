@@ -18,7 +18,7 @@ import java.util.Locale
 
 open class Hub(
     override val hubId: Long,
-    private val rooms: MutableList<Room> = mutableListOf()
+    var rooms: MutableList<Room> = mutableListOf()
 ) : AbstractHub(hubId, 1L) {
     private var updateJob: Job? = null
 
