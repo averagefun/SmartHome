@@ -28,7 +28,7 @@ fun Application.sensorRoutes() {
                     val sensorHistoryDto = ClientService.getSensorHistory(
                         principal.hubId,
                         sensorId,
-                        LocalDateTime.now().minusHours(12),
+                        LocalDateTime.now().minusHours(1),
                         LocalDateTime.now()
                     )
                     call.respond(buildSensorHistoryFrontDto(sensorId, sensorHistoryDto))
