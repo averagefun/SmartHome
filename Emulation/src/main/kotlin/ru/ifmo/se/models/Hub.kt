@@ -64,7 +64,7 @@ open class Hub(
     override fun startSimulation(scope: CoroutineScope, timeRate: Long) {
         updateJob = scope.launch(Dispatchers.IO) {
             while (isActive) {
-                rooms.forEach { it.update() }
+                rooms.reversed().forEach { it.update() }
                 delay(timeRate)
             }
         }

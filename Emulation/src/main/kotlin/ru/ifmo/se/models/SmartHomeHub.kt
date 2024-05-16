@@ -18,13 +18,15 @@ class SmartHomeHub(
                     id = 1L,
                     name = "Уличное освещение",
                     type = "light",
-                    enabled = false
+                    enabled = false,
+                    energy = 300.0
                 )
             ),
 
             startTemperature = 18.0,
             temperatureDx = 0.005,
-            temperatureCoeff = 0.01
+            temperatureCoeff = 0.01,
+            energy = 0.0
         ).addRoomSensor(
             id = 1L,
             name = "Температура",
@@ -42,15 +44,18 @@ class SmartHomeHub(
                     id = 2L,
                     name = "WiFi",
                     type = "power",
-                    enabled = false
+                    enabled = false,
+                    energy = 25.0
                 ),
                 Switch(
                     id = 3L,
                     name = "Входная дверь",
                     type = "lock",
-                    enabled = true
+                    enabled = true,
+                    energy = 0.5
                 )
-            )
+            ),
+            energy = 0.0
         ).addRoomSensor(
             id = 3L,
             name = "Средняя температура",
@@ -74,9 +79,11 @@ class SmartHomeHub(
                         id = 4L,
                         name = "Освещение в прихожей",
                         type = "light",
-                        enabled = false
+                        enabled = false,
+                        energy = 100.0
                     )
-                )
+                ),
+                energy = 50.0
             ).addRoomSensor(
                 id = 5L,
                 name = "Температура в прихожей",
@@ -86,25 +93,29 @@ class SmartHomeHub(
                 id = 4L,
                 name = "Гостиная",
                 type = "living",
-                temperatureCoeff = 0.07
+                temperatureCoeff = 0.07,
+                energy = 400.0
             )
                 .addRoomSensor(
                     id = 6L,
                     name = "Температура в гостиной",
                     type = TEMPERATURE
-                ).addCustomSensor(Sensor(
-                    id = 7L,
-                    name = "Температура в аквариуме",
-                    type = TEMPERATURE,
-                    source = Aquarium()
-                )).addRangeSwitch(
+                ).addCustomSensor(
+                    Sensor(
+                        id = 7L,
+                        name = "Температура в аквариуме",
+                        type = TEMPERATURE,
+                        source = Aquarium()
+                    )
+                ).addRangeSwitch(
                     AirConditioner(
                         id = 1L,
                         name = "Кондиционер",
                         enabled = true,
                         value = 23.1,
                         minValue = 15.0,
-                        maxValue = 28.0
+                        maxValue = 28.0,
+                        energy = 700.0
                     )
                 ),
             Room(
@@ -112,6 +123,7 @@ class SmartHomeHub(
                 name = "Спальня",
                 type = "living",
                 temperatureCoeff = 0.05,
+                energy = 100.0,
                 rangeSwitches = mutableListOf(
                     RangeSwitch(
                         id = 2L,
@@ -120,7 +132,8 @@ class SmartHomeHub(
                         enabled = true,
                         value = 40.0,
                         minValue = 0.0,
-                        maxValue = 100.0
+                        maxValue = 100.0,
+                        energy = 100.0
                     )
                 )
             ).addRoomSensor(
@@ -133,6 +146,7 @@ class SmartHomeHub(
                 name = "Ванная",
                 type = "bathroom",
                 temperatureCoeff = 0.05,
+                energy = 10.0
             ).addRoomSensor(
                 id = 9L,
                 name = "Температура в ванной",
@@ -143,7 +157,7 @@ class SmartHomeHub(
                 type = HUMIDITY,
                 source = SensorSource {
                     if (it == HUMIDITY) {
-                        val num = (790..799).random().toDouble()/10
+                        val num = (790..799).random().toDouble() / 10
                         return@SensorSource num
                     }
                     return@SensorSource null
@@ -154,26 +168,27 @@ class SmartHomeHub(
                 name = "Кухня",
                 type = "kitchen",
                 temperatureCoeff = 0.05,
+                energy = 400.0,
                 switches = mutableListOf(
                     Switch(
                         id = 5L,
                         name = "Розетка (чайник)",
                         type = "power",
                         enabled = false,
-                        energyDx = 20.0
+                        energy = 1000.0
                     ),
                     Switch(
                         id = 6L,
                         name = "Розетка (холодильник)",
                         type = "power",
                         enabled = true,
-                        energyDx = 100.0
+                        energy = 700.0
                     )
                 )
             ),
         )
 
-        val realRooms = rooms.filter { it != outside && it != home}
+        val realRooms = rooms.filter { it != outside && it != home }
         realRooms.forEach { home.aggregateTargets.add(it) }
 
         realRooms.forEach { it.addOutside(outside = outside) }

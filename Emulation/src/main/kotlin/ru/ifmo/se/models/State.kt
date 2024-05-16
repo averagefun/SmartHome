@@ -30,6 +30,7 @@ open class Room(
     val type: String,
     val temperatureCoeff: Double,
     val sensors: MutableList<Sensor> = mutableListOf(),
+    val energy: Double,
     open val switches: MutableList<Switch> = mutableListOf(),
     val rangeSwitches: MutableList<RangeSwitch> = mutableListOf(),
     val sensorSources: ConcurrentHashMap<SensorType, Double> = ConcurrentHashMap(),
@@ -45,14 +46,16 @@ open class Room(
         update(TEMPERATURE, 25.0, 0.0)
 
         sensorSources[HUMIDITY] = (747..753).random().toDouble()/10
-        update(POWER, 0.0, 5.0)
+
+        val power = switches.map {it.getSensorValueDx(POWER, 0.0)}.sum() +
+            energy + rangeSwitches.map {it.getSensorValueDx(POWER, 0.0)}.sum()
+
+        sensorSources[POWER] = power
     }
 
     fun update(type: SensorType, def: Double, defDx: Double) {
         val prev = sensorSources.getOrDefault(type, def)
         sensorSources[type] = prev + getFinalSensorSourceDx(type, prev) + defDx
-
-        // println("Update $type in room $name to " + sensorSources[type])
     }
 
     fun getFinalSensorSourceDx(type: SensorType, prev: Double): Double {
@@ -104,6 +107,7 @@ open class Outside(
     id: Long,
     name: String,
     type: String,
+    energy: Double,
 
     override var switches: MutableList<Switch>,
 
@@ -111,7 +115,7 @@ open class Outside(
     val temperatureDx: Double,
 
     temperatureCoeff: Double
-): Room(id, name, type, temperatureCoeff)
+): Room(id, name, type, temperatureCoeff, energy = energy)
 {
     init {
         sensorSources[TEMPERATURE] = startTemperature
@@ -128,8 +132,9 @@ open class Outside(
 open class Home(
     id: Long,
     override var switches: MutableList<Switch>,
+    energy: Double,
     var aggregateTargets: MutableList<SensorSource> = mutableListOf()
-): Room(id, "Дом", "home", 0.0) {
+): Room(id, "Дом", "home", 0.0, energy = energy) {
 
     override fun update() {
         sensors.forEach{sensor ->
@@ -163,13 +168,13 @@ open class Switch(
     open val type: String,
     open var enabled: Boolean,
 
-    open val energyDx: Double = 20.0,
+    open val energy: Double,
 
     val sensorValueDxSources: MutableMap<SensorType, SimpleSensorValueDxSource> = mutableMapOf()
 ) : SensorValueModifier {
     init {
         sensorValueDxSources.put(POWER, SimpleSensorValueDxSource {
-            return@SimpleSensorValueDxSource if (enabled) energyDx else 0.0
+            return@SimpleSensorValueDxSource if (enabled) energy else 0.0
         })
     }
     override fun getSensorValueDx(type: SensorType, prev: Double): Double {
@@ -183,20 +188,22 @@ open class Switch(
     }
 }
 
+
 open class RangeSwitch(
     override val id: Long,
     override val name: String,
     override val type: String,
     override var enabled: Boolean,
+    energy: Double,
     open var value: Double,
     open val minValue: Double,
     open val maxValue: Double,
-) : Switch(id, name, type, enabled), SensorValueModifier {
+) : Switch(id, name, type, enabled, energy), SensorValueModifier {
 
     init {
         sensorValueDxSources.put(POWER, SimpleSensorValueDxSource {
             val perc = (value - minValue) / (maxValue - minValue)
-            return@SimpleSensorValueDxSource if (enabled) energyDx * perc else 0.0
+            return@SimpleSensorValueDxSource if (enabled) energy * perc else 0.0
         })
     }
 
@@ -214,7 +221,8 @@ class AirConditioner(
     override var value: Double,
     override val minValue: Double,
     override val maxValue: Double,
-) : RangeSwitch(id, name, "climat", enabled, value, minValue, maxValue) {
+    energy: Double
+) : RangeSwitch(id, name, "climat", enabled, value, minValue, maxValue, energy) {
     init {
         sensorValueDxSources.put(TEMPERATURE, SimpleSensorValueDxSource { prev ->
             val difference = value - prev
